@@ -27,14 +27,12 @@ mkdir -p invoice_management/requirements
 
 
 ## 📌 **3. Crear los Módulos**
-
-### 🛠️ **Paso 4: Crear Módulo de Proveedores (`suppliers`)**
 ```bash
-mkdir -p invoice_management/apps/modules/suppliers/tests
-cd invoice_management/apps/modules/suppliers
-
-# Crear archivos
-touch __init__.py models.py views.py urls.py services.py repositories.py
+cd invoice_management\invoice_management
+mkdir -p apps/modules/suppliers
+mkdir -p apps/modules/invoices
+mkdir -p apps/modules/bank_reconciliation
+mkdir -p apps/modules/withholdings
 ```
 
 ### 🛠️ **Paso 5: Crear Módulo de Facturas (`invoices`)**
