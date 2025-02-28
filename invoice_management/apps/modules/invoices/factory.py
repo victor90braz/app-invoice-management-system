@@ -1,6 +1,6 @@
 import factory
 from apps.modules.invoices.models import Invoice
-from apps.modules.suppliers.factories import SupplierFactory
+from apps.modules.suppliers.factory import SupplierFactory
 
 class InvoiceFactory(factory.django.DjangoModelFactory):
     class Meta:

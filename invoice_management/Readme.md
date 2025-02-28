@@ -1,3 +1,6 @@
+Here’s the entire updated README with all the clarified steps:
+
+```markdown
 # Invoice Management - Setup Guide
 
 This guide provides a quick setup for running the **Invoice Management System** using **Django**, **PostgreSQL (Docker)**, and **GitHub**.
@@ -47,22 +50,39 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-## 📌 **6. Run the Server**
+## 📌 **6. Create Initial Data (Optional)**
+If you’d like to populate the database with example suppliers and invoices before running the server, you can do the following:
 
-```python
->>> from apps.modules.suppliers.models import Supplier
->>> 
->>> for index in range(1, 51):
-...     Supplier.objects.create(
-...         name=f"Supplier {index}",
-...         tax_id=f"123456789{index}",
-...         country="US"
-...     )
-...
+```bash
+python manage.py shell
 ```
+
+Inside the shell, run:
+```python
+from apps.modules.suppliers.models import Supplier
+
+# Create 50 suppliers
+for index in range(1, 51):
+    Supplier.objects.create(
+        name=f"Supplier {index}",
+        tax_id=f"123456789{index}",
+        country="US"
+    )
+
+from apps.modules.invoices.factory import InvoiceFactory
+
+# Create 50 invoices
+InvoiceFactory.create_batch(50)
+```
+
+Exit the shell after you’ve created the data.
+
+## 📌 **7. Run the Server**
 ```bash
 python manage.py runserver
 ```
 
-Now visit **`http://127.0.0.1:8000/suppliers/`** and log in with your superuser credentials.
-
+Now visit 
+**`http://127.0.0.1:8000/suppliers/`** 
+**`http://127.0.0.1:8000/invoices/`** 
+```

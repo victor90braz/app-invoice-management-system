@@ -6,5 +6,5 @@ class SupplierFactory(factory.django.DjangoModelFactory):
         model = Supplier
 
     name = factory.Faker("company")
-    tax_id = factory.Sequence(lambda n: f"123456789{n}")
+    tax_id = factory.Sequence(lambda n: f"tax_id_{n}")
     country = factory.Faker("country_code")

@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from apps.modules.suppliers.factories import SupplierFactory
+from apps.modules.suppliers.factory import SupplierFactory
 
 class SupplierListViewTest(TestCase):
     def setUp(self):
