@@ -1,8 +1,9 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from rest_framework.request import Request
 from .models import Supplier
 
-def supplier_list(request):
+def supplier_list(request: Request):
     page_number = request.GET.get('page', 1)
     limit = request.GET.get('limit', 10)
     suppliers = Supplier.objects.all()
