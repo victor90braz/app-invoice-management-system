@@ -48,10 +48,21 @@ python manage.py createsuperuser
 ```
 
 ## 📌 **6. Run the Server**
+
+```python
+>>> from apps.modules.suppliers.models import Supplier
+>>> 
+>>> for index in range(1, 51):
+...     Supplier.objects.create(
+...         name=f"Supplier {index}",
+...         tax_id=f"123456789{index}",
+...         country="US"
+...     )
+...
+```
 ```bash
 python manage.py runserver
 ```
 
-Now visit **`http://127.0.0.1:8000/admin`** and log in with your superuser credentials.
+Now visit **`http://127.0.0.1:8000/suppliers/`** and log in with your superuser credentials.
 
-🚀 Your project is now set up and running!
