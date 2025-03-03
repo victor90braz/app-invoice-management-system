@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,6 +16,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Disable all logging during tests
+logging.disable(logging.CRITICAL)  
 
 # Application definition
 
