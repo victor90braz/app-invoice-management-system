@@ -1,6 +1,3 @@
-Here’s the entire updated README with all the clarified steps:
-
-```markdown
 # Invoice Management - Setup Guide
 
 This guide provides a quick setup for running the **Invoice Management System** using **Django**, **PostgreSQL (Docker)**, and **GitHub**.
@@ -50,16 +47,35 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-## 📌 **6. Create Initial Data (Optional)**
-If you’d like to populate the database with example suppliers and invoices before running the server, you can do the following:
+## 📌 **6. Clean & Populate the Database (Optional)**
+If you’d like to reset and populate the database with example suppliers, invoices, transactions, and withholdings before running the server, follow these steps:
 
+### **6.1 Clean the Database**
 ```bash
 python manage.py shell
 ```
-
 Inside the shell, run:
 ```python
 from apps.modules.suppliers.models import Supplier
+from apps.modules.invoices.models import Invoice
+from apps.modules.bank_reconciliation.models import BankTransaction
+from apps.modules.withholdings.models import Withholding
+
+# Delete all existing records
+Supplier.objects.all().delete()
+Invoice.objects.all().delete()
+BankTransaction.objects.all().delete()
+Withholding.objects.all().delete()
+
+print("✅ Database cleaned")
+```
+
+### **6.2 Populate the Database**
+```python
+from apps.modules.suppliers.models import Supplier
+from apps.modules.invoices.factory import InvoiceFactory
+from apps.modules.bank_reconciliation.factory import BankTransactionFactory
+from apps.modules.withholdings.factory import WithholdingFactory
 
 # Create 50 suppliers
 for index in range(1, 51):
@@ -69,20 +85,30 @@ for index in range(1, 51):
         country="US"
     )
 
-from apps.modules.invoices.factory import InvoiceFactory
-
 # Create 50 invoices
 InvoiceFactory.create_batch(50)
-```
 
-Exit the shell after you’ve created the data.
+# Create 50 bank transactions
+BankTransactionFactory.create_batch(50)
+
+# Create 50 withholdings
+WithholdingFactory.create_batch(50)
+
+print("✅ Data generated successfully")
+```
+Exit the shell after you’ve created the data:
+```bash
+exit()
+```
 
 ## 📌 **7. Run the Server**
 ```bash
 python manage.py runserver
 ```
 
-Now visit 
-**`http://127.0.0.1:8000/suppliers/`** 
-**`http://127.0.0.1:8000/invoices/`** 
-```
+Now visit the following endpoints:
+- **Suppliers:** `http://127.0.0.1:8000/suppliers/`
+- **Invoices:** `http://127.0.0.1:8000/invoices/`
+- **Bank Transactions:** `http://127.0.0.1:8000/transactions/`
+- **Withholdings:** `http://127.0.0.1:8000/withholdings/`
+
