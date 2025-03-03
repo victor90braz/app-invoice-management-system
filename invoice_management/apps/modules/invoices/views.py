@@ -62,11 +62,10 @@ def create_invoice(request: Request):
         if not isinstance(items, list) or not items:
             return JsonResponse({"error": "Items must be a non-empty array"}, status=400)
 
-        # ✅ Keep using `Invoice.objects.create`
         invoice = Invoice.objects.create(
             supplier=supplier,
             due_date=due_date,
-            total_amount=0  # Set default value to avoid null constraint error
+            total_amount=0  
         )
 
         return JsonResponse(
