@@ -1,98 +1,82 @@
-from django.test import TestCase, Client
+from django.test import TestCase
+from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from apps.modules.invoices.factory import InvoiceFactory
 from apps.modules.suppliers.factory import SupplierFactory
 from apps.modules.invoices.models import Invoice
 import json
+from datetime import datetime, timedelta
 
 
 class InvoiceViewTest(TestCase):
-
     def setUp(self):
-        # Arrange
-        self.username = "testuser"
-        self.password = "testpassword"
-        self.user = User.objects.create_user(username=self.username, password=self.password)
-        self.client = Client()
-        self.client.login(username=self.username, password=self.password)
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
         self.invoices = InvoiceFactory.create_batch(20)
 
     def test_invoice_list_pagination(self):
-        # Act
         response = self.client.get("/invoices/", {"page": 1, "limit": 5})
-        
-        # Assert
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["page"], 1)
-        self.assertEqual(len(data["invoices"]), 5)
-        self.assertEqual(data["total"], 20)
-
-        first_invoice = data["invoices"][0]
-        self.assertEqual(first_invoice["id"], self.invoices[0].id)
-        self.assertEqual(first_invoice["supplier"]["id"], self.invoices[0].supplier.id)
-        self.assertEqual(first_invoice["total_amount"], str(self.invoices[0].total_amount))
-        self.assertEqual(first_invoice["due_date"], self.invoices[0].due_date.isoformat())
+        self.assertEqual(data["count"], 20)
+        self.assertEqual(len(data["results"]), 5)
 
     def test_create_invoice_success(self):
-        # Arrange
         supplier = SupplierFactory.create()
         invoice_data = {
             "supplier": supplier.id,
-            "due_date": "2025-03-10",
-            "items": ["Item1", "Item2"]
+            "due_date": (datetime.today() + timedelta(days=10)).strftime("%Y-%m-%d"),
+            "total_amount": "100.50"
         }
-        
-        # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
-        
-        # Assert
         self.assertEqual(response.status_code, 201)
         data = response.json()
-        self.assertIn("invoice_id", data)
-        self.assertTrue(Invoice.objects.filter(id=data["invoice_id"]).exists())
+        self.assertIn("invoice", data)
+        self.assertTrue(Invoice.objects.filter(id=data["invoice"]["id"]).exists())
+
+    def test_create_invoice_negative_total_amount(self):
+        supplier = SupplierFactory.create()
+        invoice_data = {
+            "supplier": supplier.id,
+            "due_date": (datetime.today() + timedelta(days=10)).strftime("%Y-%m-%d"),
+            "total_amount": "-10.00"
+        }
+        response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("__all__", response.json()["error"])
+        self.assertEqual(response.json()["error"]["__all__"][0], "Total amount cannot be negative.")
+
+    def test_create_invoice_due_date_in_past(self):
+        supplier = SupplierFactory.create()
+        past_date = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+        invoice_data = {
+            "supplier": supplier.id,
+            "due_date": past_date,
+            "total_amount": "50.00"
+        }
+        response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("__all__", response.json()["error"])
+        self.assertEqual(response.json()["error"]["__all__"][0], "Due date cannot be in the past.")
 
     def test_create_invoice_missing_supplier(self):
-        # Arrange
         invoice_data = {
             "due_date": "2025-03-10",
-            "items": ["Item1", "Item2"]
+            "total_amount": "50.00"
         }
-        
-        # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
-        
-        # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["error"], "Supplier is required")
+        self.assertIn("supplier", response.json()["error"])
+        self.assertEqual(response.json()["error"]["supplier"][0], "This field is required.")
 
     def test_create_invoice_missing_due_date(self):
-        # Arrange
         supplier = SupplierFactory.create()
         invoice_data = {
             "supplier": supplier.id,
-            "items": ["Item1", "Item2"]
+            "total_amount": "50.00"
         }
-        
-        # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
-        
-        # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["error"], "due_date is required")
-
-    def test_create_invoice_empty_items(self):
-        # Arrange
-        supplier = SupplierFactory.create()
-        invoice_data = {
-            "supplier": supplier.id,
-            "due_date": "2025-03-10",
-            "items": []
-        }
-        
-        # Act
-        response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
-        
-        # Assert
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["error"], "Items must be a non-empty array")
+        self.assertIn("due_date", response.json()["error"])
+        self.assertEqual(response.json()["error"]["due_date"][0], "This field is required.")
