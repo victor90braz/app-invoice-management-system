@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 def invoice_list(request: Request):
     page_number = request.GET.get('page', 1)
     limit = request.GET.get('limit', 10)
-    invoices = Invoice.objects.all()
+    invoices = Invoice.objects.order_by('id')  
     paginator = Paginator(invoices, limit)
     page_obj = paginator.get_page(page_number)
     data = {

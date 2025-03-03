@@ -6,7 +6,7 @@ from .models import Supplier
 def supplier_list(request: Request):
     page_number = request.GET.get('page', 1)
     limit = request.GET.get('limit', 10)
-    suppliers = Supplier.objects.all()
+    suppliers = Supplier.objects.order_by('id')  
     paginator = Paginator(suppliers, limit)
     page_obj = paginator.get_page(page_number)
     data = {

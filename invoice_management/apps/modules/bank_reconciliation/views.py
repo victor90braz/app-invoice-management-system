@@ -6,7 +6,7 @@ from .models import BankTransaction
 def bank_transaction_list(request: Request):
     page_number = request.GET.get('page', 1)
     limit = request.GET.get('limit', 10)
-    transactions = BankTransaction.objects.all()
+    transactions = BankTransaction.objects.order_by('id')  
     paginator = Paginator(transactions, limit)
     page_obj = paginator.get_page(page_number)
 

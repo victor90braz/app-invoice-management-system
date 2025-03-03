@@ -6,4 +6,5 @@ urlpatterns = [
     path('suppliers/', include('apps.modules.suppliers.urls')),
     path('invoices/', include('apps.modules.invoices.urls')),
     path('bank-reconciliation/', include('apps.modules.bank_reconciliation.urls')),
+    path('withholdings/', include('apps.modules.withholdings.urls')),
 ]
