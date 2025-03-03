@@ -20,12 +20,14 @@ class InvoiceViewTest(TestCase):
     def test_invoice_list_pagination(self):
         # Act
         response = self.client.get("/invoices/", {"page": 1, "limit": 5})
+        
         # Assert
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["page"], 1)
         self.assertEqual(len(data["invoices"]), 5)
         self.assertEqual(data["total"], 20)
+
         first_invoice = data["invoices"][0]
         self.assertEqual(first_invoice["id"], self.invoices[0].id)
         self.assertEqual(first_invoice["supplier"]["id"], self.invoices[0].supplier.id)
@@ -40,8 +42,10 @@ class InvoiceViewTest(TestCase):
             "due_date": "2025-03-10",
             "items": ["Item1", "Item2"]
         }
+        
         # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
+        
         # Assert
         self.assertEqual(response.status_code, 201)
         data = response.json()
@@ -54,8 +58,10 @@ class InvoiceViewTest(TestCase):
             "due_date": "2025-03-10",
             "items": ["Item1", "Item2"]
         }
+        
         # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
+        
         # Assert
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error"], "Supplier is required")
@@ -67,8 +73,10 @@ class InvoiceViewTest(TestCase):
             "supplier": supplier.id,
             "items": ["Item1", "Item2"]
         }
+        
         # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
+        
         # Assert
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error"], "due_date is required")
@@ -81,8 +89,10 @@ class InvoiceViewTest(TestCase):
             "due_date": "2025-03-10",
             "items": []
         }
+        
         # Act
         response = self.client.post("/invoices/create/", json.dumps(invoice_data), content_type="application/json")
+        
         # Assert
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error"], "Items must be a non-empty array")
