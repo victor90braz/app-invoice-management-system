@@ -1,11 +1,10 @@
 # Invoice Management - Setup Guide
 
-This guide provides a quick setup for running the **Invoice Management System** using **Django**, **PostgreSQL (Docker Compose)**, and **GitHub**.
+Tecnoligies: **Python (Django)**, **Testing**, **PostgreSQL (Docker Compose)**.
 
 ## 📌 **1. Clone the Repository**
 ```bash
 git clone https://github.com/victor90braz/app-invoice-management-system.git
-cd app-invoice-management-system
 ```
 
 ## 📌 **2. Create a Virtual Environment & Install Dependencies**
@@ -58,7 +57,7 @@ DATABASES = {
         "NAME": "invoice_management_db",
         "USER": "postgres",
         "PASSWORD": "root",
-        "HOST": "db",  # Use "db" instead of "localhost" for Docker
+        "HOST": "localhost",  
         "PORT": "5432",
     }
 }
@@ -85,7 +84,6 @@ from apps.modules.invoices.models import Invoice
 from apps.modules.bank_reconciliation.models import BankTransaction
 from apps.modules.withholdings.models import Withholding
 
-# Delete all existing records
 Supplier.objects.all().delete()
 Invoice.objects.all().delete()
 BankTransaction.objects.all().delete()
@@ -95,33 +93,24 @@ print("✅ Database cleaned")
 ```
 
 ### **6.2 Populate the Database**
+
+```bash
+python manage.py shell
+```
+Inside the shell, run:
+
 ```python
-from apps.modules.suppliers.models import Supplier
+from apps.modules.suppliers.factory import SupplierFactory
 from apps.modules.invoices.factory import InvoiceFactory
 from apps.modules.bank_reconciliation.factory import BankTransactionFactory
 from apps.modules.withholdings.factory import WithholdingFactory
 
-# Create 50 suppliers
-for index in range(1, 51):
-    Supplier.objects.create(
-        name=f"Supplier {index}",
-        tax_id=f"123456789{index}",
-        country="US"
-    )
-
-# Create 50 invoices
+SupplierFactory.create_batch(50)
 InvoiceFactory.create_batch(50)
-
-# Create 50 bank transactions
 BankTransactionFactory.create_batch(50)
-
-# Create 50 withholdings
 WithholdingFactory.create_batch(50)
 
 print("✅ Data generated successfully")
-```
-Exit the shell after you’ve created the data:
-```bash
 exit()
 ```
 
