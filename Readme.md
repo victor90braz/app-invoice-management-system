@@ -1,6 +1,6 @@
 # Invoice Management - Setup Guide
 
-This guide provides a quick setup for running the **Invoice Management System** using **Django**, **PostgreSQL (Docker)**, and **GitHub**.
+This guide provides a quick setup for running the **Invoice Management System** using **Django**, **PostgreSQL (Docker Compose)**, and **GitHub**.
 
 ## 📌 **1. Clone the Repository**
 ```bash
@@ -15,12 +15,36 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 📌 **3. Set Up PostgreSQL with Docker**
-```bash
-docker run --name postgres-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=root -e POSTGRES_DB=invoice_management_db -p 5432:5432 -d postgres
+## 📌 **3. Set Up PostgreSQL with Docker Compose**
+Ensure you have a `docker-compose.yml` file with the following content:
+
+```yaml
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: invoice_management_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
 ```
 
-Verify the container is running:
+Then, start PostgreSQL with:
+```bash
+docker-compose up -d
+```
+
+Verify that the container is running:
 ```bash
 docker ps
 ```
@@ -34,7 +58,7 @@ DATABASES = {
         "NAME": "invoice_management_db",
         "USER": "postgres",
         "PASSWORD": "root",
-        "HOST": "localhost",
+        "HOST": "db",  # Use "db" instead of "localhost" for Docker
         "PORT": "5432",
     }
 }
