@@ -115,3 +115,19 @@ python manage.py runserver
 - **Bank Transactions:** `http://127.0.0.1:8000/transactions/`
 - **Withholdings:** `http://127.0.0.1:8000/withholdings/`
 
+## 📌 **9. Run Tests and Check Coverage**
+
+Run all tests:
+
+```bash
+python manage.py test
+```
+
+Check code coverage:
+
+```bash
+coverage run --source='apps' manage.py test
+coverage report -m
+coverage html
+```
+
