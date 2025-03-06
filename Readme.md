@@ -29,7 +29,7 @@ venv\Scripts\activate
 ## 📌 **3. Install Dependencies and Verify Requirements**
 
 ```bash
-pip freeze > requirements.txt
+pip install -r requirements.txt
 pip list
 python manage.py check
 ```
@@ -39,6 +39,7 @@ python manage.py check
 Ensure `docker-compose.yml` exists, then run:
 
 ```bash
+docker-compose down 
 docker-compose up -d
 ```
 
@@ -48,19 +49,24 @@ Verify:
 docker ps
 ```
 
-## 📌 **5. Configure Database in `settings.py`**
+## 📌 **5. Set Up Environment Variables**
 
-```python
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "invoice_management_db",
-        "USER": "postgres",
-        "PASSWORD": "root",
-        "HOST": "localhost",  
-        "PORT": "5432",
-    }
-}
+Before running the project, copy the `.env.example` file and create your own `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Then update `.env` with your database credentials:
+
+```
+DB_NAME=invoice_management_db
+DB_USER=postgres
+DB_PASSWORD=your_password_here
+DB_HOST=localhost
+DB_PORT=5432
+
+DEBUG=True
 ```
 
 ## 📌 **6. Apply Migrations & Create Superuser**
@@ -98,7 +104,7 @@ InvoiceFactory.create_batch(50)
 BankTransactionFactory.create_batch(50)
 WithholdingFactory.create_batch(50)
 
-print("✅ Database reset and populated")
+print("\u2705 Database reset and populated")
 exit()
 ```
 
@@ -130,4 +136,3 @@ coverage run --source='apps' manage.py test
 coverage report -m
 coverage html
 ```
-
