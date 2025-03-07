@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: Invoice Management API
+  description: API para gestión de facturas, proveedores y conciliación bancaria con seguridad y validaciones mejoradas.
+  version: 1.1.0
+
+servers:
+  - url: https://api.example.com
+    description: Servidor de producción
+  - url: http://localhost:8000
+    description: Servidor de desarrollo
+
+components:
+  securitySchemes:
+    TokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Usar el token en formato: Token {your_token}"
+
+  schemas:
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+
+    Invoice:
+      type: object
+      required: [supplier, items, dueDate]
+      properties:
+        id:
+          type: string
+        supplier:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            required: [description, amount]
+            properties:
+              description:
+                type: string
+              amount:
+                type: number
+                minimum: 0.01
+        dueDate:
+          type: string
+          format: date
+
+security:
+  - TokenAuth: []
+
+paths:
+  /api/login/:
+    post:
+      summary: Obtener token de autenticación
+      description: Permite a los usuarios autenticarse y recibir un token para acceder a la API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        400:
+          description: Credenciales incorrectas
+
+  /suppliers:
+    get:
+      summary: Obtener lista de proveedores
+      description: Permite recuperar proveedores con filtros opcionales y paginación.
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: taxId
+          in: query
+          schema:
+            type: string
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        200:
+          description: Lista de proveedores paginada, incluye total de registros y metadatos.
+        400:
+          description: Parámetros inválidos
+
+  /invoices:
+    post:
+      summary: Registrar factura
+      description: Registra una nueva factura en el sistema tras validar los datos.
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Invoice"
+      responses:
+        201:
+          description: Factura registrada con éxito
+        400:
+          description: Datos inválidos en la factura
+        401:
+          description: No autenticado
+
+  /invoices/validate:
+    post:
+      summary: Validar factura antes de registrarla
+      description: Permite verificar errores en una factura antes de guardarla en la base de datos.
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Invoice"
+      responses:
+        200:
+          description: Factura válida
+        400:
+          description: Error en la validación
+
+  /bank-reconciliation:
+    post:
+      summary: Reconciliación bancaria de facturas
+      description: Permite asociar facturas con movimientos bancarios confirmados.
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bankStatement, invoices]
+              properties:
+                bankStatement:
+                  type: string
+                invoices:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: Reconciliación realizada con éxito
+        400:
+          description: Datos inválidos
+
+  /tax-retentions:
+    post:
+      summary: Aplicar retención fiscal a una factura
+      description: Permite gestionar retenciones fiscales en facturas.
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [invoiceId, retentionPercentage]
+              properties:
+                invoiceId:
+                  type: string
+                retentionPercentage:
+                  type: number
+                  minimum: 0
+                  maximum: 100
+      responses:
+        200:
+          description: Retención aplicada correctamente
+        400:
+          description: Datos inválidos
