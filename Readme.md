@@ -133,13 +133,17 @@ python manage.py runserver
 
 Run all tests:
 
+
 ```bash
+pip install factory_boy
 python manage.py test
 ```
 
 Check code coverage:
 
 ```bash
+
+pip install coverage
 coverage run --source='apps' manage.py test
 coverage report -m
 coverage html
