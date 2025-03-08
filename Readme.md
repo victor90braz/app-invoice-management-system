@@ -39,7 +39,7 @@ python manage.py check
 Ensure `docker-compose.yml` exists, then run:
 
 ```bash
-docker-compose down 
+docker-compose down
 docker-compose up -d
 ```
 
@@ -78,6 +78,14 @@ python manage.py createsuperuser
 
 ## 📌 **7. Reset & Populate Database (Optional)**
 
+Ensure the `factory_boy` package is installed:
+
+```bash
+pip install factory_boy
+```
+
+Then open the Django shell:
+
 ```bash
 python manage.py shell
 ```
@@ -104,7 +112,7 @@ InvoiceFactory.create_batch(50)
 BankTransactionFactory.create_batch(50)
 WithholdingFactory.create_batch(50)
 
-print("\u2705 Database reset and populated")
+print("✅ Database reset and populated")
 exit()
 ```
 
@@ -136,3 +144,4 @@ coverage run --source='apps' manage.py test
 coverage report -m
 coverage html
 ```
+
